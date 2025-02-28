@@ -409,7 +409,7 @@ control_group_table2$group <- rep("Control_group", nrow(control_group_table2))
 combined_data_table2 <- rbind(injury_group_table2, intact_group_table2, control_group_table2)
 
 # Compare the colnames between combined_data_table2 and table2_names$old
-names(combined_data_table2) == table2_names$old # The 1st 26 items are the same (one is 16 in length, the other one is 15 in length).
+names(combined_data_table2) == table2_names$old # The 1st 15 items are the same (one is 16 in length, the other one is 15 in length).
 length(names(combined_data_table2)) # 16
 names(combined_data_table2)
 names(combined_data_table2)[1:15] <- table2_names$new # Rename the column names.
@@ -467,6 +467,6 @@ write.csv(combined_data_table2_p_value, "2_table2_p_value.csv", row.names = F)
 
 # 16. Save the current R session.
 
-save.image("1_read_the_three_sheets_containing_clinical_info_for_table2.Rdata")
+save.image("2_read_the_three_sheets_containing_clinical_info_for_table2.Rdata")
 
 # ======================================================
