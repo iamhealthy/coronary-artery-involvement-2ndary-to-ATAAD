@@ -1,0 +1,21 @@
+1. 三个表格的numerical values，经过shapiro.test测试后，发现都是non-normally distributed numericals，所以都用四分位方法展示了，即median [0.25 percentile, 0.75 percentile]。
+
+2. Table 2中，“TAR with FET”的1、0、NA、和2表示：
+	# if the cells of CL is 1（即为TAR）, and the cells of CM is 1, then the cells of "TAR-with-FET" is 1.
+	# if the cells of CL is 1（即为TAR）, and the cells of CM is 0, then the cells of "TAR-with-FET" is 0.
+	# 如果不是TAR，则为2。
+	# other conditions, the cells of "TAR-with-FET" is "NA".
+
+3. Table 2中，“TAR without FET”的1、0、NA、和2表示：
+	# if the cells of CL is 1（即为TAR）, and the cells of CM is 0, then the cells of "TAR-without-FET" is 1.
+	# if the cells of CL is 1（即为TAR）, and the cells of CM is 1, then the cells of "TAR-without-FET" is 0.
+	# 如果不是TAR，则为2。
+	# other conditions, the cells of "TAR-without-FET" is "NA".
+
+4. 你师兄的两个文献，因为是two cohorts，所以也同时做了matching，即matching cohorts的比较。但我们是three cohorts，麻烦和科室师兄讨论下，是否要做matching，及怎么做？
+
+5. 图3/association这个，麻烦抽空帮我明确一下：all preoperative variables都有哪些？便于我做后续分析。
+
+6. Missing是在原始数据库中为空的，你得和你科室讨论怎么处理？
+
+6. 其他我考虑不周的？
