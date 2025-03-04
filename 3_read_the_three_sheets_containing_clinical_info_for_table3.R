@@ -294,23 +294,31 @@ names(combined_data_table3)
 
 # ------------------------------------------------------
 
+# Test if numerical variable is normally-distributed or not using shapiro.test().
+
+str(combined_data_table3) # Check the internal structure of objects.
+shapiro.test(combined_data_table3$`ICU stay, days`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data_table3$`Hospital stay, days`) # p < 0.05, not normally-distributed.
+
+# ------------------------------------------------------
+
 # Needn't change the sequence of levels of some columns.
 
 # Generate the comparative table using the package of table1.
 
 library(table1)
 
-# Create a function to show table with just 'Median [Min, Max]'.
-# See "D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont.R" for details.
-source("function_my.render.cont.R")
+# Create a function to show table with just 'quantile_0.5 [quantile_0.25, quantile_0.75]'.
+# See "D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont_quantile.R" for details.
+source("D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont_quantile.R")
 
 # Generate table.
-combined_data_table3_TABLE <- table1::table1(~ . - group | group, data = combined_data_table3, render.continuous = my.render.cont)
+combined_data_table3_TABLE <- table1::table1(~ . - group | group, data = combined_data_table3, render.continuous = my.render.cont_quantile)
 combined_data_table3_TABLE # Noticed some bizarra values at the column "ICU stay, days" of control_group_table3 and intact_group_table3.
 
 combined_data_table3$`ICU stay, days`[combined_data_table3$`ICU stay, days` < 0] <- NA # Those values less than 0 are changed to NAs.
 
-combined_data_table3_TABLE <- table1::table1(~ . - group | group, data = combined_data_table3, render.continuous = my.render.cont)
+combined_data_table3_TABLE <- table1::table1(~ . - group | group, data = combined_data_table3, render.continuous = my.render.cont_quantile)
 combined_data_table3_TABLE # Normal this time.
 
 # Save the table as csv file.
@@ -351,7 +359,25 @@ write.csv(combined_data_table3_p_value, "3_table3_p_value.csv", row.names = F)
 
 # ======================================================
 
-# 16. Save the current R session.
+# 13. Save the table 3.
+
+injury_group_table3_patient <- cbind(injury_group[, c("编号", "His_ID", "Name")], injury_group_table3) # Add three more columns to identify the patients.
+names(injury_group_table3_patient) <- c("编号", "His_ID", "Name", table3_names$new) # Rename the column names.
+
+intact_group_table3_patient <- cbind(intact_group[, c("编号", "His_ID", "Name")], intact_group_table3) # Add three more columns to identify the patients.
+names(intact_group_table3_patient) <- c("编号", "His_ID", "Name", table3_names$new) # Rename the column names.
+
+control_group_table3_patient <- cbind(control_group[, c("编号", "His_ID", "Name")], control_group_table3) # Add three more columns to identify the patients.
+names(control_group_table3_patient) <- c("编号", "His_ID", "Name", table3_names$new) # Rename the column names.
+
+combined_data_table3_patient <- rbind(injury_group_table3_patient, intact_group_table3_patient, control_group_table3_patient) # Combine the three tables.
+
+# Save the table as csv file.
+write.csv(combined_data_table3_patient, "3_table3_patient.csv", row.names = F)
+
+# ======================================================
+
+# 14. Save the current R session.
 
 save.image("3_read_the_three_sheets_containing_clinical_info_for_table3.Rdata")
 

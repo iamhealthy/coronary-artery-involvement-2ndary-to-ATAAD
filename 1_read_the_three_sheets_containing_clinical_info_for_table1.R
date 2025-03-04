@@ -377,16 +377,27 @@ combined_data$`CA involvement_Left CA only` <- factor(combined_data$`CA involvem
 combined_data$`CA involvement_Right CA only` <- factor(combined_data$`CA involvement_Right CA only`, levels = c("0", "A", "B", "C"))
 combined_data$`CA involvement_Left+right CA` <- factor(combined_data$`CA involvement_Left+right CA`, levels = c("0", "A", "B", "C"))
 
+# ------------------------------------------------------
+
+# Test if numerical variable is normally-distributed or not using shapiro.test().
+
+shapiro.test(combined_data$`Age, y`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data$`BMI, kg/m^2`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data$`Time to surgery, h`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data$`LVEF, %`) # p < 0.05, not normally-distributed.
+
+# ------------------------------------------------------
+
 # Generate the comparative table using the package of table1.
 
 library(table1)
 
-# Show table with just Median [Min, Max]
-my.render.cont <- function(x) {
-  median_val <- median(x, na.rm = TRUE)
-  min_val <- min(x, na.rm = TRUE)
-  max_val <- max(x, na.rm = TRUE)
-  sprintf("%.1f [%.1f, %.1f]", median_val, min_val, max_val)
+# Show table with just Median [25% quantile, 75% quantile]
+my.render.cont_quantile <- function(x) {
+  val_median <- quantile(x, na.rm = TRUE)[3]
+  val_0.25 <- quantile(x, na.rm = TRUE)[2]
+  val_0.75 <- quantile(x, na.rm = TRUE)[4]
+  sprintf("%.2f [%.2f, %.2f]", val_median, val_0.25, val_0.75)
 }
 
 # Generate table.
@@ -409,10 +420,10 @@ for (i1 in 1:(length(col_name))) { # Loop to calculate p-value.
   
   if (is.numeric(combined_data[[col_name[i1]]])) {    
     p_value <- kruskal.test(combined_data[[col_name[i1]]] ~ combined_data$group)$p.value # Kruskal-Wallis test for numeric.
-    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only two decimal places.
+    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only three decimal places.
   } else if (is.factor(combined_data[[col_name[i1]]])) {    
     p_value <- chisq.test(table(combined_data[[col_name[i1]]], combined_data$group), simulate.p.value = TRUE)$p.value # chi-square test for categorical vector.
-    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only two decimal places.
+    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only three decimal places.
   }
 
 }
@@ -427,7 +438,25 @@ write.csv(combined_data_p_value, "1_table1_p_value.csv", row.names =F)
 
 # ======================================================
 
-# 11. Save the current R session.
+# 11. Save the table 1.
+
+injury_group_table1_patient <- cbind(injury_group[, c("编号", "His_ID", "Name")], injury_group_table1) # Add three more columns to identify the patients.
+names(injury_group_table1_patient) <- c("编号", "His_ID", "Name", table1_names$new) # Rename the column names.
+
+intact_group_table1_patient <- cbind(intact_group[, c("编号", "His_ID", "Name")], intact_group_table1) # Add three more columns to identify the patients.
+names(intact_group_table1_patient) <- c("编号", "His_ID", "Name", table1_names$new) # Rename the column names.
+
+control_group_table1_patient <- cbind(control_group[, c("编号", "His_ID", "Name")], control_group_table1) # Add three more columns to identify the patients.
+names(control_group_table1_patient) <- c("编号", "His_ID", "Name", table1_names$new) # Rename the column names.
+
+combined_data_table_patient <- rbind(injury_group_table1_patient, intact_group_table1_patient, control_group_table1_patient) # Combine the three tables.
+
+# Save the table as csv file.
+write.csv(combined_data_table_patient, "1_table1_patient.csv", row.names = F)
+
+# ======================================================
+
+# 12. Save the current R session.
 
 save.image("1_read_the_three_sheets_containing_clinical_info_for_table1.Rdata")
 

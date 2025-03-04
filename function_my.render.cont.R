@@ -1,6 +1,6 @@
-my.render.cont <- function(x) {
-  median_val <- median(x, na.rm = TRUE)
-  min_val <- min(x, na.rm = TRUE)
-  max_val <- max(x, na.rm = TRUE)
-  sprintf("%.1f [%.1f, %.1f]", median_val, min_val, max_val)
+my.render.cont_quantile <- function(x) {
+  val_median <- quantile(x, na.rm = TRUE)[3]
+  val_0.25 <- quantile(x, na.rm = TRUE)[2]
+  val_0.75 <- quantile(x, na.rm = TRUE)[4]
+  sprintf("%.2f [%.2f, %.2f]", val_median, val_0.25, val_0.75)
 }

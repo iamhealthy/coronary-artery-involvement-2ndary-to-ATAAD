@@ -137,11 +137,11 @@ View(control_group[,c("Op_TAR", "Op_FET", "TAR_with_FET")])
 
 # ======================================================
 
-# 6. Merge the columns of CL and CL for "TAR without FET".
+# 6. Merge the columns of CL and CM for "TAR without FET".
 
 # Create a function to merge the columns of CL and CL with the criteira:
-# if the cells of CL is 1, and the cells of CL is 0, then the cells of "TAR-without-FET" is 1.
-# if the cells of CL is 1, and the cells of CL is 1, then the cells of "TAR-without-FET" is 0.
+# if the cells of CL is 1, and the cells of CM is 0, then the cells of "TAR-without-FET" is 1.
+# if the cells of CL is 1, and the cells of CM is 1, then the cells of "TAR-without-FET" is 0.
 # other conditions, the cells of "TAR-without-FET" is "NA".
 
 tar_without_fet <- function(cl, cm) {
@@ -417,18 +417,30 @@ names(combined_data_table2)
 
 # ------------------------------------------------------
 
+# Test if numerical variable is normally-distributed or not using shapiro.test().
+
+str(combined_data_table2) # Check the internal structure of objects.
+shapiro.test(combined_data_table2$`CPB time (min)`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data_table2$`ACC time (min)`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data_table2$`Duration of HCA, min`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data_table2$`Lowest temperature, °C`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data_table2$`Red blood cells, U`) # p < 0.05, not normally-distributed.
+shapiro.test(combined_data_table2$`Plasma, ml`) # p < 0.05, not normally-distributed.
+
+# ------------------------------------------------------
+
 # Needn't change the sequence of levels of some columns.
 
 # Generate the comparative table using the package of table1.
 
 library(table1)
 
-# Create a function to show table with just 'Median [Min, Max]'.
-# See "D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont.R" for details.
-source("D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont.R")
+# Create a function to show table with just 'quantile_0.5 [quantile_0.25, quantile_0.75]'.
+# See "D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont_quantile.R" for details.
+source("D:/R&S/1_2_项目或任务/1_邵医生数据/2_20250122/function_my.render.cont_quantile.R")
 
 # Generate table.
-combined_data_table2_TABLE <- table1::table1(~ . - group | group, data = combined_data_table2, render.continuous = my.render.cont)
+combined_data_table2_TABLE <- table1::table1(~ . - group | group, data = combined_data_table2, render.continuous = my.render.cont_quantile)
 
 # Save the table as csv file.
 write.csv(combined_data_table2_TABLE, "2_table2.csv", row.names = F)
@@ -447,10 +459,10 @@ for (i1 in 1:(length(col_name))) { # Loop to calculate p-value.
   
   if (is.numeric(combined_data_table2[[col_name[i1]]])) {    
     p_value <- kruskal.test(combined_data_table2[[col_name[i1]]] ~ combined_data_table2$group)$p.value # Kruskal-Wallis test for numeric.
-    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only two decimal places.
+    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only three decimal places.
   } else if (is.factor(combined_data_table2[[col_name[i1]]])) {    
     p_value <- chisq.test(table(combined_data_table2[[col_name[i1]]], combined_data_table2$group), simulate.p.value = TRUE)$p.value # chi-square test for categorical vector.
-    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only two decimal places.
+    col_name_p[i1] <- sprintf("%.3f", p_value) # Display only three decimal places.
   }
   
 }
@@ -465,7 +477,25 @@ write.csv(combined_data_table2_p_value, "2_table2_p_value.csv", row.names = F)
 
 # ======================================================
 
-# 16. Save the current R session.
+# 16. Save the table 2.
+
+injury_group_table2_patient <- cbind(injury_group[, c("编号", "His_ID", "Name")], injury_group_table2) # Add three more columns to identify the patients.
+names(injury_group_table2_patient) <- c("编号", "His_ID", "Name", table2_names$new) # Rename the column names.
+
+intact_group_table2_patient <- cbind(intact_group[, c("编号", "His_ID", "Name")], intact_group_table2) # Add three more columns to identify the patients.
+names(intact_group_table2_patient) <- c("编号", "His_ID", "Name", table2_names$new) # Rename the column names.
+
+control_group_table2_patient <- cbind(control_group[, c("编号", "His_ID", "Name")], control_group_table2) # Add three more columns to identify the patients.
+names(control_group_table2_patient) <- c("编号", "His_ID", "Name", table2_names$new) # Rename the column names.
+
+combined_data_table2_patient <- rbind(injury_group_table2_patient, intact_group_table2_patient, control_group_table2_patient) # Combine the three tables.
+
+# Save the table as csv file.
+write.csv(combined_data_table2_patient, "2_table2_patient.csv", row.names = F)
+
+# ======================================================
+
+# 17. Save the current R session.
 
 save.image("2_read_the_three_sheets_containing_clinical_info_for_table2.Rdata")
 
